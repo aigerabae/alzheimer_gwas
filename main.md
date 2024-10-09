@@ -12,6 +12,8 @@ dragena genotype gtc-to-vcf \
     --gtc-sample-sheet /home/user/biostar/gwas/alzheimer/sample_sheet/SampleSheet_alz.csv \
     --csv-manifest /home/user/biostar/gwas/alzheimer/manifest_csv/InfiniumImmunoArray-24v2-0_A.csv \
     --output-folder /home/user/biostar/gwas/alzheimer/vcf/
+
+bcftools merge /home/user/biostar/gwas/alzheimer/vcf/*.vcf.gz -o alz.vcf
 ```
 
 Work I did on GenomeStudio generated FinalReport:
