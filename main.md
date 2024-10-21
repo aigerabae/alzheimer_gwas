@@ -39,9 +39,9 @@ plink --bfile alz6 --covar alz_pca.eigenvec --logistic --hide-covar --thread-num
 plink --bfile alz6 --covar alz_pca.eigenvec --logistic --dominant --hide-covar --out dominant_results
 plink --bfile alz6 --covar alz_pca.eigenvec --logistic --recessive --hide-covar --out recessive_results
 plink --bfile alz6 --assoc --out assoc_results
-plink --bfile alz6 --fisher
-plink --bfile alz6 --model
-plink2 --bfile alz6 --glm --covar alz_pca.eigenvec
+plink --bfile alz6 --fisher --out fisher
+plink --bfile alz6 --model --out model
+plink2 --bfile alz6 --glm --covar alz_pca.eigenvec --out glm
 ```
 
 ```bash
@@ -49,24 +49,18 @@ cat dominant_results.assoc.logistic | awk '$9 != "NA"' | sort -gk 9,9 | head
 cat recessive_results.assoc.logistic | awk '$9 != "NA"' | sort -gk 9,9 | head 
 cat simple_logistic.assoc.logistic | awk '$9 != "NA"' | sort -gk 9,9 | head 
 cat assoc_results.assoc | awk '$9 != "NA"' | sort -gk 9,9 | head
-cat plink.assoc.fisher | awk '$8 != "NA"' | sort -gk 8,8 | head
-cat plink.model | awk '$10 != "NA"' | sort -gk 10,10 | head
-cat plink2.PHENO1.glm.logistic.hybrid | awk '$15 != "NA"' | sort -gk 15,15 | head
+cat fisher.assoc.fisher | awk '$8 != "NA"' | sort -gk 8,8 | head
+cat model.model | awk '$10 != "NA"' | sort -gk 10,10 | head
+cat glm.PHENO1.glm.logistic.hybrid | awk '$15 != "NA"' | sort -gk 15,15 | head
 ```
 
 ```bash
-
- ./manhattan_plot.py -i assoc_results.assoc 
-
+./manhattan_plot.py -i assoc_results.assoc 
 ./manhattan_plot.py -i dominant_results.assoc.logistic 
-
-./manhattan_plot.py -i plink.assoc.fisher
-
-./manhattan_plot.py -i plink2.PHENO1.glm.logistic.hybrid
-
+./manhattan_plot.py -i fisher.assoc.fisher
+./manhattan_plot.py -i glm.PHENO1.glm.logistic.hybrid
+./manhattan_plot.py -i model.model
 ./manhattan_plot.py -i recessive_results.assoc.logistic
-
 ./manhattan_plot.py -i simple_logistic.assoc.logistic
-
 ```
 
