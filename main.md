@@ -17,12 +17,17 @@ bcftools merge /home/user/biostar/gwas/alzheimer/vcf/*.vcf.gz -o alz.vcf
 bcftools reheader -s sample_name_conversion.tsv -o alz1.vcf alz.vcf
 plink -vcf alz1.vcf --pheno phenotypes.tsv --update-sex sex.tsv --remove non-kz.tsv --make-bed --out alz2
 
-plink --bfile alz2 --geno 0.02 --make-bed --out alz3
-plink --bfile alz3 --mind 0.02 --make-bed --out alz4
-plink --bfile alz4 --maf 0.001 --make-bed --out alz5
-plink --bfile alz5 --genome --min 0.2 --out pihat_min0.2
+awk -F'\t' '!seen[$1]++' InfiniumImmunoArray-24v2-0_A_b138_rsids.txt | awk -F'\t' '!seen[$2]++' | awk -F'\t' '$2 !~ /,/' > IIA-dictionary.txt
+plink --bfile alz2 --update-name IIA-dictionary.txt --make-bed --out alz3
+awk '$2 !~ /^rs/' alz3.bim | sort -k2,2 > custom_non_rs_SNP.txt
+plink --bfile alz3 --exclude custom_non_rs_SNP.txt --make-bed --out alz4
+
+plink --bfile alz4 --geno 0.02 --make-bed --out alz5
+plink --bfile alz5 --mind 0.02 --make-bed --out alz6
+plink --bfile alz6 --maf 0.001 --make-bed --out alz7
+plink --bfile alz7 --genome --min 0.2 --out pihat_min0.2
 awk '$10 > 0.2 {print $1, $2, $3, $4}' pihat_min0.2.genome > related_pairs.txt
-plink --bfile alz10 --missing --out missing_report
+plink --bfile alz7 --missing --out missing_report
 echo "D180    D180
 AK015    AK015
 C132    C132
@@ -30,18 +35,18 @@ C124    C124
 C077    C077
 C067    C067
 C170    C170" > relatives_to_remove.tsv
-plink --bfile alz5 --remove relatives_to_remove.tsv --allow-no-sex --make-bed --out alz6
-plink2 --bfile alz6 --pca 10 --out alz_pca
+plink --bfile alz7 --remove relatives_to_remove.tsv --allow-no-sex --make-bed --out alz8
+plink2 --bfile alz8 --pca 10 --out alz_pca
 ```
 
 ```bash
-plink --bfile alz6 --covar alz_pca.eigenvec --logistic --hide-covar --thread-num 8 --out simple_logistic
-plink --bfile alz6 --covar alz_pca.eigenvec --logistic --dominant --hide-covar --out dominant_results
-plink --bfile alz6 --covar alz_pca.eigenvec --logistic --recessive --hide-covar --out recessive_results
-plink --bfile alz6 --assoc --out assoc_results
-plink --bfile alz6 --fisher --out fisher
-plink --bfile alz6 --model --out model
-plink2 --bfile alz6 --glm --covar alz_pca.eigenvec --out glm
+plink --bfile alz8 --covar alz_pca.eigenvec --logistic --hide-covar --thread-num 8 --out simple_logistic
+plink --bfile alz8 --covar alz_pca.eigenvec --logistic --dominant --hide-covar --out dominant_results
+plink --bfile alz8 --covar alz_pca.eigenvec --logistic --recessive --hide-covar --out recessive_results
+plink --bfile alz8 --assoc --out assoc_results
+plink --bfile alz8 --fisher --out fisher
+plink --bfile alz8 --model --out model
+plink2 --bfile alz8 --glm --covar alz_pca.eigenvec --out glm
 ```
 
 ```bash
