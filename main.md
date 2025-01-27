@@ -69,3 +69,12 @@ cat glm.PHENO1.glm.logistic.hybrid | awk '$15 != "NA"' | sort -gk 15,15 | head
 ./manhattan_plot.py -i simple_logistic.assoc.logistic
 ```
 
+```bash
+cat simple_logistic.assoc.logistic | awk '$9 != "NA" && $9 < 1e-3' | sort -gk 9,9
+cat dominant_results.assoc.logistic | awk '$9 != "NA" && $9 < 1e-3' | sort -gk 9,9
+cat recessive_results.assoc.logistic | awk '$9 != "NA" && $9 < 1e-3' | sort -gk 9,9
+cat assoc_results.assoc | awk '$9 != "NA" && $9 < 1e-3' | sort -gk 9,9
+cat fisher.assoc.fisher | awk '$9 != "NA" && $9 < 1e-3' | sort -gk 9,9
+
+
+```
