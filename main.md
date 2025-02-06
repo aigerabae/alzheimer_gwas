@@ -46,7 +46,7 @@ plink --bfile alz8 --covar alz_pca.eigenvec --logistic --recessive --hide-covar 
 plink --bfile alz8 --assoc --out assoc_results
 plink --bfile alz8 --fisher --out fisher
 
-plink --bfile alz6 --covar alz_pca.eigenvec  --model --out model
+plink --bfile alz8 --covar alz_pca.eigenvec  --model --out model
 
 plink2 --bfile alz8 --glm --covar alz_pca.eigenvec --out glm
 ```
@@ -78,21 +78,22 @@ cat recessive_results.assoc.logistic | awk '$9 != "NA" && $9 < 1e-3' | sort -gk 
 cat assoc_results.assoc | awk '$9 != "NA" && $9 < 1e-3' | sort -gk 9,9
 cat fisher.assoc.fisher | awk '$9 != "NA" && $9 < 1e-3' | sort -gk 9,9
 # too many values
-cat model.model | awk '$10 != "NA" && $10 < 1e-3' | sort -gk 9,9
+cat model.model | awk '$10 != "NA" && $10 < 1e-4' | sort -gk 9,9
 
+I WILL DO IT TOMORROW MONING
 ```
 
 plink2:
 ```bash
-plink2 --bfile alz6 --glm --covar alz_pca.eigenvec --pfilter 0.0001 --out glm_additive
-plink2 --bfile alz6 --glm dominant --covar alz_pca.eigenvec --pfilter 0.0001 --out glm_dominant
-plink2 --bfile alz6 --glm recessive --covar alz_pca.eigenvec --pfilter 0.0001 --out glm_recessive
-plink2 --bfile alz6 --glm firth --covar alz_pca.eigenvec --pfilter 0.0001 --out glm_firth
+plink2 --bfile alz8 --glm --covar alz_pca.eigenvec --pfilter 0.0001 --out glm_additive
+plink2 --bfile alz8 --glm dominant --covar alz_pca.eigenvec --pfilter 0.0001 --out glm_dominant
+plink2 --bfile alz8 --glm recessive --covar alz_pca.eigenvec --pfilter 0.0001 --out glm_recessive
+plink2 --bfile alz8 --glm firth --covar alz_pca.eigenvec --pfilter 0.0001 --out glm_firth
 
-plink2 --bfile alz6 --glm --covar alz_pca.eigenvec -out glm_additive
-plink2 --bfile alz6 --glm dominant --covar alz_pca.eigenvec --out glm_dominant
-plink2 --bfile alz6 --glm recessive --covar alz_pca.eigenvec  --out glm_recessive
-plink2 --bfile alz6 --glm firth --covar alz_pca.eigenvec --out glm_firth
+plink2 --bfile alz8 --glm --covar alz_pca.eigenvec -out glm_additive
+plink2 --bfile alz8 --glm dominant --covar alz_pca.eigenvec --out glm_dominant
+plink2 --bfile alz8 --glm recessive --covar alz_pca.eigenvec  --out glm_recessive
+plink2 --bfile alz8 --glm firth --covar alz_pca.eigenvec --out glm_firth
 
 ./manhattan_plot.py -i glm_additive.PHENO1.glm.logistic.hybrid
 ./manhattan_plot.py -i glm_dominant.PHENO1.glm.logistic.hybrid
