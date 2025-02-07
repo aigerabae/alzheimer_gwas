@@ -24,10 +24,9 @@ plink --bfile alz3 --exclude custom_non_rs_SNP.txt --make-bed --out alz4
 
 plink --bfile alz4 --geno 0.02 --make-bed --out alz5
 plink --bfile alz5 --mind 0.02 --make-bed --out alz6
-plink --bfile alz6 --maf 0.001 --make-bed --out alz7
-plink --bfile alz7 --genome --min 0.2 --out pihat_min0.2
+plink --bfile alz6 --genome --min 0.2 --out pihat_min0.2
 awk '$10 > 0.2 {print $1, $2, $3, $4}' pihat_min0.2.genome > related_pairs.txt
-plink --bfile alz7 --missing --out missing_report
+plink --bfile alz6 --missing --out missing_report
 echo "D180    D180
 AK015    AK015
 C132    C132
@@ -35,9 +34,27 @@ C124    C124
 C077    C077
 C067    C067
 C170    C170" > relatives_to_remove.tsv
-plink --bfile alz7 --remove relatives_to_remove.tsv --allow-no-sex --make-bed --out alz8
+plink --bfile alz6 --remove relatives_to_remove.tsv --allow-no-sex --make-bed --out alz7
+
+plink --bfile alz7 --maf 0.001 --make-bed --out alz8
+
 plink2 --bfile alz8 --pca 10 --out alz_pca
 ```
+
+```bash
+plink --bfile alz7 --covar alz_pca.eigenvec  --model --out model_no_maf_filtering
+plink --bfile alz8 --covar alz_pca.eigenvec  --model --out model_mafs_filtered
+cat model_no_maf_filtering.model | awk '$10 != "NA" && $10 < 1e-4' | sort -gk 9,9
+cat model_mafs_filtered.model | awk '$10 != "NA" && $10 < 1e-4' | sort -gk 9,9
+
+```
+
+
+
+
+
+
+
 
 ```bash
 plink --bfile alz8 --covar alz_pca.eigenvec --logistic --hide-covar --thread-num 8 --out simple_logistic
@@ -45,9 +62,6 @@ plink --bfile alz8 --covar alz_pca.eigenvec --logistic --dominant --hide-covar -
 plink --bfile alz8 --covar alz_pca.eigenvec --logistic --recessive --hide-covar --out recessive_results
 plink --bfile alz8 --assoc --out assoc_results
 plink --bfile alz8 --fisher --out fisher
-
-plink --bfile alz8 --covar alz_pca.eigenvec  --model --out model
-
 plink2 --bfile alz8 --glm --covar alz_pca.eigenvec --out glm
 ```
 
@@ -94,8 +108,20 @@ plink2 --bfile alz8 --glm --covar alz_pca.eigenvec -out glm_additive
 plink2 --bfile alz8 --glm dominant --covar alz_pca.eigenvec --out glm_dominant
 plink2 --bfile alz8 --glm recessive --covar alz_pca.eigenvec  --out glm_recessive
 plink2 --bfile alz8 --glm firth --covar alz_pca.eigenvec --out glm_firth
+```
 
+./manhattan_plot.py -i glm_firth.PHENO1.glm.firth
 ./manhattan_plot.py -i glm_additive.PHENO1.glm.logistic.hybrid
 ./manhattan_plot.py -i glm_dominant.PHENO1.glm.logistic.hybrid
 ./manhattan_plot.py -i glm_recessive.PHENO1.glm.logistic.hybrid
-./manhattan_plot.py -i glm_firth.PHENO1.glm.firth
+
+
+awk '$6 == 1 {print $1, $2}' alz8.fam > alz8_control_samples.txt
+awk '$6 == 2 {print $1, $2}' alz8.fam > alz8_case_samples.txt
+plink --bfile alz8 --keep alz8_case_samples.txt --make-bed --out alz8_case
+plink --bfile alz8 --keep alz8_control_samples.txt --make-bed --out alz8_control
+plink2 --bfile alz8_case  --freq --out maf_alz8_case
+plink2 --bfile alz8_control  --freq --out maf_alz8_control
+grep -Ff top50_maf_filtering.txt maf_alz8_case.afreq
+grep -Ff top50_maf_filtering.txt maf_alz8_control.afreq
+
